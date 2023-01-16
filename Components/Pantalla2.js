@@ -12,7 +12,7 @@ export default function Pantalla2({ navigation }) {
   const [track, setTrack] = useState([{ banda: "", url: "", title: "", album: "", cover: "" }]);
   const [url, setUrl] = useState([{ url: "" }]);
   const [bPlay, setBPlay] = useState(true)
-  const [songState, setSongState] = useState();
+  const [songState, setSongState] = useState(null);
 
 
   useEffect(() => {
@@ -21,30 +21,27 @@ export default function Pantalla2({ navigation }) {
 
   const stopAudio = async () => {
     await songState.stopAsync();
-    };
-    
+  };
+
 
   const play = async () => {
 
     if (bPlay === true) {
       try {
-        setBPlay(false);
         const playbackObject = new Audio.Sound();
-        const status = await playbackObject.loadAsync({ uri: url[current].url }, { shouldPlay: true })
-        console.log(status.getStatusAsync)
-        setSongState(status.getStatusAsync)
+        await playbackObject.loadAsync({ uri: url[current].url }, { shouldPlay: true })
+        setSongState(playbackObject)
+        setBPlay(false);
       } catch (error) {
         console.log("Error en el metodo play", error.message)
       }
     } else if (bPlay === false) {
       try {
-
-        setBPlay(true);
-        Audio.getStatusAsync
-        const result = await songState;
+        const result = await songState.getStatusAync();
         if (result.isLoaded) {
           if (result.isPlaying === true) {
             songState.pauseAsync();
+            setBPlay(true);
           }
         }
       } catch (error) {
@@ -157,7 +154,7 @@ export default function Pantalla2({ navigation }) {
       <View style={{ marginTop: 50, flexDirection: 'row' }}>
         <AntDesign name="stepbackward" size={75} color="black" onPress={handleAnterior} />
         <Ionicons name={bPlay ? "play-circle-outline" : 'pause-circle-outline'} size={75} color="black" onPress={play} />
-        <Entypo name="controller-stop" size={75} color="black" onPress={stopAudio}/>
+        <Entypo name="controller-stop" size={75} color="black" onPress={stopAudio} />
         <AntDesign name="stepforward" size={75} color="black" onPress={handleSiguiente} />
       </View>
     </View>
