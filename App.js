@@ -1,20 +1,22 @@
-import { StatusBar } from 'expo-status-bar';
-import { StyleSheet, Text, View } from 'react-native';
+import * as React from 'react';
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import { NavigationContainer } from '@react-navigation/native';
 
-export default function App() {
-  return (
-    <View style={styles.container}>
-      <Text>Open up App.js to start working on your app!</Text>
-      <StatusBar style="auto" />
-    </View>
-  );
-}
+import { PantallasProvider } from './Components/Context';
+import AudioPlayer from './Components/AudioPlayer';
+import AudioRecorder from './Components/AudioRecorder';
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#fff',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-});
+const Tab = createBottomTabNavigator();
+
+const App = () => (
+  <PantallasProvider>
+    <NavigationContainer>
+      <Tab.Navigator>
+        <Tab.Screen name="AudioPlayer" component={AudioPlayer} />
+        <Tab.Screen name="AudioRecorder" component={AudioRecorder} />
+      </Tab.Navigator>
+    </NavigationContainer>
+  </PantallasProvider>
+);
+
+export default App;
