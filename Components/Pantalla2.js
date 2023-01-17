@@ -9,44 +9,75 @@ import { Audio } from 'expo-av';
 export default function Pantalla2({ navigation }) {
   const [current, setCurrent] = useState(0);
   const { name, setName } = useContext(PantallasContext);
-  const [track, setTrack] = useState([{ banda: "", url: "", title: "", album: "", cover: "" }]);
+  const [track, setTrack] = useState([{ banda: "", url: "https://img.wallpapersafari.com/tablet/768/1024/47/28/MGoFVr.jpg", title: "", album: "", cover: "https://img.wallpapersafari.com/tablet/768/1024/47/28/MGoFVr.jpg" }]);
   const [url, setUrl] = useState([{ url: "" }]);
   const [bPlay, setBPlay] = useState(true)
+  const [paused, setPaused] = useState(false);
   const [songState, setSongState] = useState(null);
-
 
   useEffect(() => {
     getData(name);
+    setCurrent(0)
   }, []);
 
   const stopAudio = async () => {
-    await songState.stopAsync();
-  };
 
+    if (songState !== null) {
+      try {
+        const result = await songState.getStatusAsync();
+        if (result.isLoaded === true){
+          await songState.stopAsync();
+        }
+      } catch (error){
+
+      }
+
+    setBPlay(true);
+    setPaused(false);
+  };
+}
+
+  const startPlaying = async () => {
+    try {
+      const playbackObject = new Audio.Sound();
+      await playbackObject.loadAsync({ uri: url[current].url }, { shouldPlay: true })
+      setSongState(playbackObject)
+      setBPlay(false);
+      setPaused(false);
+    } catch (error) {
+      console.log("Error en el metodo play", error.message)
+    }
+  }
 
   const play = async () => {
-
-    if (bPlay === true) {
+    if (songState !== null) {
       try {
-        const playbackObject = new Audio.Sound();
-        await playbackObject.loadAsync({ uri: url[current].url }, { shouldPlay: true })
-        setSongState(playbackObject)
-        setBPlay(false);
-      } catch (error) {
-        console.log("Error en el metodo play", error.message)
-      }
-    } else if (bPlay === false) {
-      try {
-        const result = await songState.getStatusAync();
-        if (result.isLoaded) {
-          if (result.isPlaying === true) {
-            songState.pauseAsync();
-            setBPlay(true);
-          }
+        const result = await songState.getStatusAsync();
+        if (result.isPlaying === false && result.isLoaded === true && bPlay === false) {
+          stopAudio();
+          startPlaying();
         }
       } catch (error) {
         console.log(error);
       }
+    }
+
+
+    if (bPlay === true && paused === false) {
+      startPlaying();
+    } else if (bPlay === false) {
+      try {
+        songState.pauseAsync();
+        setPaused(true);
+        setBPlay(true);
+
+      } catch (error) {
+        console.log(error);
+      }
+    } else if (bPlay === true && paused === true) {
+      songState.playAsync();
+      setBPlay(false);
+      setPaused(false);
     }
   }
 
@@ -117,23 +148,21 @@ export default function Pantalla2({ navigation }) {
   };
 
   function handleSiguiente() {
-    setBPlay(true);
     if (current === 4) {
       setCurrent(0);
     } else {
       setCurrent(current + 1);
-
     }
+    stopAudio();
   }
 
   function handleAnterior() {
-    setBPlay(true);
     if (current === 0) {
       setCurrent(4);
     } else {
       setCurrent(current - 1);
-
     }
+    stopAudio();
   }
 
   return (
