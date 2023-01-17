@@ -13,7 +13,10 @@ export default function ARPantalla2({ navigation }) {
     };
 
     return (
-    <View></View>
+    <View>
+
+        
+    </View>
     );
 }
 
